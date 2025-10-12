@@ -3,25 +3,23 @@
 
 namespace sCode {
 #include "thread.cpp"
-
-
-    class Tester {
-    public:
-        void printArray(int arr[]){
-            std::cout << "g_buf[" << sCode::g_bufferSize << "] = { ";
-            for (int i = 0; i < sCode::g_bufferSize - 1; i++){
-                std::cout << sCode::g_buf[i] << ", ";
-            }
-            if (sCode::g_bufferSize > 0) 
-                std::cout << sCode::g_buf[sCode::g_bufferSize - 1];
-            std::cout << " }\n";
-        }
-    };
-
 }
 
+class Tester {
+public:
+    void printArray(int arr[]){
+        std::cout << "g_buf[" << sCode::g_bufferSize << "] = { ";
+        for (int i = 0; i < sCode::g_bufferSize - 1; i++){
+            std::cout << sCode::g_buf[i] << ", ";
+        }
+        if (sCode::g_bufferSize > 0) 
+            std::cout << sCode::g_buf[sCode::g_bufferSize - 1];
+        std::cout << " }\n";
+    }
+};
+
 int main(){
-    sCode::Tester tester;
+    Tester tester;
 
     tester.printArray(sCode::g_buf);
 

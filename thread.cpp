@@ -6,8 +6,8 @@ void* ProdFunction(void* threadID);
 void* ConsFunction(void *threadID);
 
 // GLOBALS
-#define bufferSize 10
-int buf[bufferSize];
+#define BUF_SIZE 10
+int buf[BUF_SIZE];
 #define busyItems 10000000  // number of loops for the busy loop
 #define range 1000       // range for random numbers
 int sum = 0;                  // global sum
@@ -67,7 +67,7 @@ void* ProdFunction(void* threadID)
 {
     pthread_t myID = pthread_self();
     srand(myID);
-    for (int i=0; i < bufferSize; i++){
+    for (int i=0; i < BUF_SIZE; i++){
         buf[i] = rand() % range;
         numCount++;
     } 
@@ -93,7 +93,7 @@ void* ConsFunction(void *threadID)
     my_sum = buf[0];
 
     // loop through buffer
-    for (int i = 1; i < bufferSize; i++){
+    for (int i = 1; i < BUF_SIZE; i++){
         int consumedNum = buf[i];
 
         if (consumedNum < my_min)

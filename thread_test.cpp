@@ -11,30 +11,53 @@ namespace sCode {
 #define PTHREAD_MISSING false
 #endif
 
+#ifndef BUF_SIZE
+#error Variable "BUF_SIZE" not defined with #define.  
+#elif BUF_SIZE < 1
+#error Variable "BUF_SIZE" cannot be 0 or negative 
+#endif
+
+#ifdef NUM_C_THREADS // TODO Change this to check for Lab 3 or Lab 4
+    #ifndef NUM_C_THREADS
+    #error Variable "NUM_C_THREADS" not defined with #define.
+    #elif NUM_C_THREADS < 1
+    #error Variable "NUM_C_THREADS" must be positive
+    #endif
+
+    #ifndef NUM_P_THREADS
+    #error Variable "NUM_P_THREADS" not defined with #define.
+    #elif NUM_P_THREADS < 1
+    #error Variable "NUM_P_THREADS" must be positive
+    #endif
+#endif
+
 class Tester {
+private:
+    int* array; //
 public:
-    void printArray(int arr[]){
-        std::cout << "g_buf[" << sCode::g_bufferSize << "] = { ";
-        for (int i = 0; i < sCode::g_bufferSize - 1; i++){
-            std::cout << sCode::g_buf[i] << ", ";
+    bool setArray(int arr[]) { array = arr; }
+    int* getArray() const { return array; }
+
+    void printArray(){
+        std::cout << "buf[" << BUF_SIZE << "] = { ";
+        for (int i = 0; i < BUF_SIZE - 1; i++){
+            std::cout << array << ", ";
         }
-        if (sCode::g_bufferSize > 0) 
-            std::cout << sCode::g_buf[sCode::g_bufferSize - 1];
+        if (BUF_SIZE > 0) 
+            std::cout << array[BUF_SIZE - 1];
         std::cout << " }\n";
     }
 };
 
 // TESTER GLOBALS
-const int g_tbufferSize = 10;    // buffer size
-int g_tbuf[g_tbufferSize];        // shared int array buffer
-const int g_tbusyItems = 10000000;  // number of loops for the busy loop
-const int g_trange = 1000;       // range for random numbers
-int g_tsum = 0;                  // global sum
-int g_tnumCount = 0;             // global count of numbers produced
-int g_tmin;                      // global min
-int g_tmax;                      // global max
-const int tNUM_C_THREADS = 1;    // consumer thread count
-const int tNUM_P_THREADS = 1;    // producer thread count
+#define tBUF_SIZE 10    // buffer size
+int tbuf[tBUF_SIZE];        // shared int array buffer
+int tsum = 0;                  // global sum
+int tnumCount = 0;             // global count of numbers produced
+int tmin;                      // global min
+int tmax;                      // global max
+#define tNUM_C_THREADS 1    // consumer thread count
+#define tNUM_P_THREADS 1    // producer thread count
 
 
 int main(){
@@ -43,16 +66,16 @@ int main(){
         exit(1);
     }
     Tester tester;
-
+    tester.setArray(sCode::buf);
     
-    tester.printArray(sCode::g_buf);
+    tester.printArray();
 
     
     
     sCode::main();
     
-    sCode::g_buf[0] = 1;
-    tester.printArray(sCode::g_buf);
+    sCode::buf[0] = 1;
+    tester.printArray();
 
     return 0;
 }

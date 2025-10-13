@@ -13,10 +13,7 @@ int g_min;                      // global min
 int g_max;                      // global max
 const int NUM_C_THREADS = 1;    // consumer thread count
 const int NUM_P_THREADS = 1;    // producer thread count
-struct g_struct {
-    int myID = -1;
-    
-};
+
 
 void* ProdFunction(void* threadID)
 {

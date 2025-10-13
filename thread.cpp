@@ -6,16 +6,17 @@ void* ProdFunction(void* threadID);
 void* ConsFunction(void *threadID);
 
 // GLOBALS
-#define g_bufferSize 10
-int g_buf[g_bufferSize];
-#define g_busyItems 10000000  // number of loops for the busy loop
-#define g_range 1000       // range for random numbers
-int g_sum = 0;                  // global sum
-int g_numCount = 0;             // global count of numbers produced
-int g_min;                      // global min
-int g_max;                      // global max
+#define bufferSize 10
+int buf[bufferSize];
+#define busyItems 10000000  // number of loops for the busy loop
+#define range 1000       // range for random numbers
+int sum = 0;                  // global sum
+int numCount = 0;             // global count of numbers produced
+int min;                      // global min
+int max;                      // global max
 #define NUM_C_THREADS 1    // consumer thread count
 #define NUM_P_THREADS 1    // producer thread count
+int NextIn = 0, NextOut = 0;
 
 
 int main(){
@@ -56,8 +57,8 @@ int main(){
         pthread_join(tidP[t], NULL);
     }
     
-    double avg = static_cast<double>(g_sum) / g_numCount;
-    printf("RESULTS: Min=%d, Max=%d, Avg=%f\n", g_min, g_max, avg);
+    double avg = static_cast<double>(sum) / numCount;
+    printf("RESULTS: Min=%d, Max=%d, Avg=%f\n", min, max, avg);
     
     return 0;
 }
@@ -66,9 +67,9 @@ void* ProdFunction(void* threadID)
 {
     pthread_t myID = pthread_self();
     srand(myID);
-    for (int i=0; i < g_bufferSize; i++){
-        g_buf[i] = rand() % g_range;
-        g_numCount++;
+    for (int i=0; i < bufferSize; i++){
+        buf[i] = rand() % range;
+        numCount++;
     } 
 
 
@@ -80,33 +81,33 @@ void* ConsFunction(void *threadID)
 {
     //BUSY WORK
     int BUSY_SUM = 0;
-    for (int i=0; i < g_busyItems; i++){
+    for (int i=0; i < busyItems; i++){
         BUSY_SUM += i;
     }
     //END BUSY WORK
 
     // define and init local variables to first num in buffer
-    int min, max, sum;
-    min = g_buf[0];
-    max = g_buf[0];
-    sum = g_buf[0];
+    int my_min, my_max, my_sum;
+    my_min = buf[0];
+    my_max = buf[0];
+    my_sum = buf[0];
 
     // loop through buffer
-    for (int i = 1; i < g_bufferSize; i++){
-        int consumedNum = g_buf[i];
+    for (int i = 1; i < bufferSize; i++){
+        int consumedNum = buf[i];
 
-        if (consumedNum < min)
-            min = consumedNum;
-        if (consumedNum > max)
-            max = consumedNum;
+        if (consumedNum < my_min)
+            my_min = consumedNum;
+        if (consumedNum > my_max)
+            my_max = consumedNum;
         
-        sum += consumedNum;
+        my_sum += consumedNum;
     }
 
     // push local vars to global
-    g_sum = sum;
-    g_min = min;
-    g_max = max;
+    sum = my_sum;
+    min = my_min;
+    max = my_max;
 
     pthread_exit(0);
 }

@@ -34,18 +34,18 @@ namespace sCode {
 
 class Tester {
 private:
-    int* array; //
+    int* arrayPtr; //
 public:
-    bool setArray(int arr[]) { array = arr; }
-    int* getArray() const { return array; }
+    bool setArray(int* arr) { arrayPtr = arr; }
+    int* getArray() const { return arrayPtr; }
 
     void printArray(){
         std::cout << "buf[" << S << "] = { ";
         for (int i = 0; i < S - 1; i++){
-            std::cout << array << ", ";
+            std::cout << arrayPtr[i] << ", ";
         }
         if (S > 0) 
-            std::cout << array[S - 1];
+            std::cout << arrayPtr[S - 1];
         std::cout << " }\n";
     }
 };
@@ -75,7 +75,7 @@ int main(){
         sCode::main();
 
     }
-    catch {
+    catch (...) {
         
     }
     

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <assert.h>
+#include <exception>
 
 namespace sCode {
     #include "thread.cpp"
@@ -11,10 +12,10 @@ namespace sCode {
 #define PTHREAD_MISSING false
 #endif
 
-#ifndef BUF_SIZE
-#error Variable "BUF_SIZE" not defined with #define.  
-#elif BUF_SIZE < 1
-#error Variable "BUF_SIZE" cannot be 0 or negative 
+#ifndef S
+#error Variable "S" (buffer size) not defined with #define.  
+#elif S < 1
+#error Variable "S" (buffer size) cannot be 0 or negative 
 #endif
 
 #ifdef NUM_C_THREADS // TODO Change this to check for Lab 3 or Lab 4
@@ -39,12 +40,12 @@ public:
     int* getArray() const { return array; }
 
     void printArray(){
-        std::cout << "buf[" << BUF_SIZE << "] = { ";
-        for (int i = 0; i < BUF_SIZE - 1; i++){
+        std::cout << "buf[" << S << "] = { ";
+        for (int i = 0; i < S - 1; i++){
             std::cout << array << ", ";
         }
-        if (BUF_SIZE > 0) 
-            std::cout << array[BUF_SIZE - 1];
+        if (S > 0) 
+            std::cout << array[S - 1];
         std::cout << " }\n";
     }
 };
@@ -62,17 +63,21 @@ int tmax;                      // global max
 
 int main(){
     if (PTHREAD_MISSING){
-        printf("<pthread.h> is not included!");
-        exit(1);
+        printf(">>> ERROR: <pthread.h> is not included in student file!");
     }
     Tester tester;
     tester.setArray(sCode::buf);
     
     tester.printArray();
 
-    
-    
-    sCode::main();
+    try {
+        
+        sCode::main();
+
+    }
+    catch {
+        
+    }
     
     sCode::buf[0] = 1;
     tester.printArray();

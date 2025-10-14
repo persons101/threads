@@ -34,9 +34,9 @@ namespace sCode {
 
 class Tester {
 private:
-    int* arrayPtr; //
+    int* arrayPtr = sCode::buf;
 public:
-    bool setArray(int* arr) { arrayPtr = arr; }
+    //bool setArray(int* arr) { arrayPtr = arr; } // can't figure out how to do this
     int* getArray() const { return arrayPtr; }
 
     void printArray(){
@@ -66,7 +66,6 @@ int main(){
         printf(">>> ERROR: <pthread.h> is not included in student file!");
     }
     Tester tester;
-    tester.setArray(sCode::buf);
     
     tester.printArray();
 
@@ -79,6 +78,7 @@ int main(){
         
     }
     
+    tester.printArray();
     sCode::buf[0] = 1;
     tester.printArray();
 

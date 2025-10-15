@@ -61,13 +61,23 @@ int main(){
     }
     
     // calculate global/total min,max,avg
+    // avg
     totAvg = 0.0;
     for (int i = 0; i < NUM_C_THREADS; i++){
         totAvg += avg[i] * 1000; // get sum from avg
     }
     totAvg /= NUM_C_THREADS; 
+    // min/max
+    totMin = min[0];
+    totMax = max[0];
 
-    //double avg = static_cast<double>(sum) / numCount; // TODO Fix this
+    for (int i = 1; i < NUM_C_THREADS; i++){
+        if (min[i] < totMin) 
+            totMin = min[i];
+        if (max[i] > totMax)
+            totMax = max[i];
+    }
+
     printf("RESULTS: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
     
     return 0;
@@ -89,8 +99,8 @@ void* ProdFunction(void* threadID)
 
 void* ConsFunction(void *param)
 {
-    int myID = (int)param;
-
+    int* myIDptr = (int*)param;
+    int myID = *myIDptr;
     // define and init local variables to first num in buffer
     int my_min, my_max, my_sum;
     my_min = buf[0];
@@ -109,8 +119,10 @@ void* ConsFunction(void *param)
         my_sum += consumedNum;
     }
 
+    double my_avg = static_cast<double>(my_sum) / NumItems; 
+
     // push local vars to global
-    sum = my_sum;
+    avg[myID] = my_avg;
     min[myID] = my_min;
     max[myID] = my_max;
 

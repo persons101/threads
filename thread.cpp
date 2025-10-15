@@ -1,6 +1,5 @@
 #include <iostream>
-//#include <pthread.h>
-
+#include <pthread.h>
 
 void* ProdFunction(void* threadID);
 void* ConsFunction(void *threadID);
@@ -9,15 +8,17 @@ void* ConsFunction(void *threadID);
 #define S 10
 int buf[S];
 #define busyItems 10000000  // number of loops for the busy loop
-#define range 1000       // range for random numbers
-int sum = 0;                  // global sum
-int numCount = 0;             // global count of numbers produced
-int min;                      // global min
-int max;                      // global max
-#define NUM_C_THREADS 1    // consumer thread count
-#define NUM_P_THREADS 1    // producer thread count
-int NextIn = 0, NextOut = 0;
-
+#define range 1000                  // range for random numbers
+#define NUM_C_THREADS 6             // consumer thread count
+#define NUM_P_THREADS 6             // producer thread count
+int min[NUM_C_THREADS];             // global min array
+int max[NUM_C_THREADS];             // global max array
+double avg[NUM_C_THREADS];          // global avg array
+int NextIn = 0, NextOut = 0;        // Current buffer access
+int totMax, totMin;
+double totAvg;
+int NumItems;                       // number of items for each producer to produce
+//END GLOBALS
 
 int main(){
     
@@ -28,7 +29,7 @@ int main(){
     for (int t = 0; t < NUM_P_THREADS; t++){
         int* t_ptr = &t;
         
-        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, (void*)t_ptr);
+        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, (void*)t);
         if (returnVal){
             printf("ERROR: return code from pthread_create() is %d\n", returnVal);
             exit(-1);
@@ -47,6 +48,8 @@ int main(){
         }
     }
     
+
+
     // delete/join consumer threads
     for (int t = 0; t < NUM_C_THREADS; t++){
         pthread_join(tidC[t], NULL);
@@ -57,8 +60,15 @@ int main(){
         pthread_join(tidP[t], NULL);
     }
     
-    double avg = static_cast<double>(sum) / numCount;
-    printf("RESULTS: Min=%d, Max=%d, Avg=%f\n", min, max, avg);
+    // calculate global/total min,max,avg
+    totAvg = 0.0;
+    for (int i = 0; i < NUM_C_THREADS; i++){
+        totAvg += avg[i] * 1000; // get sum from avg
+    }
+    totAvg /= NUM_C_THREADS; 
+
+    //double avg = static_cast<double>(sum) / numCount; // TODO Fix this
+    printf("RESULTS: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
     
     return 0;
 }
@@ -69,7 +79,7 @@ void* ProdFunction(void* threadID)
     srand(myID);
     for (int i=0; i < S; i++){
         buf[i] = rand() % range;
-        numCount++;
+        NumItems++;
     } 
 
 
@@ -77,14 +87,9 @@ void* ProdFunction(void* threadID)
     pthread_exit(0);
 }
 
-void* ConsFunction(void *threadID)
+void* ConsFunction(void *param)
 {
-    //BUSY WORK
-    int BUSY_SUM = 0;
-    for (int i=0; i < busyItems; i++){
-        BUSY_SUM += i;
-    }
-    //END BUSY WORK
+    int myID = (int)param;
 
     // define and init local variables to first num in buffer
     int my_min, my_max, my_sum;
@@ -93,7 +98,7 @@ void* ConsFunction(void *threadID)
     my_sum = buf[0];
 
     // loop through buffer
-    for (int i = 1; i < S; i++){
+    for (int i = 0; i < NumItems; i++){
         int consumedNum = buf[i];
 
         if (consumedNum < my_min)
@@ -106,8 +111,8 @@ void* ConsFunction(void *threadID)
 
     // push local vars to global
     sum = my_sum;
-    min = my_min;
-    max = my_max;
+    min[myID] = my_min;
+    max[myID] = my_max;
 
     pthread_exit(0);
 }

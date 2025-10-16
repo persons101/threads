@@ -21,14 +21,22 @@ pthread_mutex_t lock;               // mutex lock
 pthread_cond_t empty, full;
 //END GLOBALS
 
-int main(int argc, void**argv){
+int main(int argc, char*argv[]){
     
     pthread_t tidC[NUM_C_THREADS]; // array with consumer thread IDs
     pthread_t tidP[NUM_P_THREADS]; // array with producer thread IDs
     
     // command line arguments
-    if (argc != 2) {
-        printf(">>> Error, expected 4 arguments.\n");
+    if (argc != 3 ) {
+        printf(">>> Error, expected 2+1 arguments, got %d\n", argc);
+        printf(">>> Terminating.\n");
+        exit(0);
+    }
+
+    NumItems = atoi(argv[1]);
+    range = atoi(argv[2]);
+    if (NumItems < 1) {
+        printf(">>> Error, number of items must be positive.\n");
         printf(">>> Terminating.\n");
         exit(0);
     }
@@ -98,10 +106,19 @@ void* ProdFunction(void* threadID)
 {
     pthread_t myID = pthread_self();
     srand(myID);
+
+    // produce items
+    pthread_mutex_lock(&lock);
     for (int i=0; i < NumItems; i++){
-        
-        buf[i] = rand() % range;
+        while (((NextIn + 1) % S) == NextOut) { // buffer full
+            pthread_cond_signal(&full);
+            pthread_cond_wait(&empty, &lock);
+        }
+
+        buf[NextIn] = rand() % range;
         NextIn = (NextIn + 1) % 10;
+
+        pthread_mutex_unlock(&lock);
     } 
 
 
@@ -115,14 +132,28 @@ void* ConsFunction(void *param)
     int myID = *myIDptr;
     // define and init local variables to first num in buffer
     int myMin, myMax, mySum;
+
+
+    pthread_mutex_lock(&lock);
+    while (NextIn == NextOut) { // buffer empty
+        pthread_cond_signal(&empty);
+        pthread_cond_wait(&full, &lock);
+    }
     myMin = buf[0];
     myMax = buf[0];
     mySum = buf[0];
 
     // loop through buffer
     for (int i = 1; i < NumItems; i++){
+        while (NextIn == NextOut) { // buffer empty
+            pthread_cond_signal(&empty);
+            pthread_cond_wait(&full, &lock);
+        }
         NextOut = (NextOut + 1) % 10;
 
+        pthread_mutex_unlock(&lock);
+
+        // local variable 
         int consumedNum = buf[i];
 
         if (consumedNum < myMin)

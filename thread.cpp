@@ -27,7 +27,7 @@ int main(int argc, char*argv[]){
     pthread_t tidP[NUM_P_THREADS]; // array with producer thread IDs
     
     // command line arguments
-    if (argc != 3 ) {
+    if (argc != 2+1 ) {
         printf(">>> Error, expected 2+1 arguments, got %d\n", argc);
         printf(">>> Terminating.\n");
         exit(0);
@@ -104,7 +104,8 @@ int main(int argc, char*argv[]){
 
 void* ProdFunction(void* threadID)
 {
-    pthread_t myID = pthread_self();
+    int* myIDptr = (int*)threadID;
+    int myID = *myIDptr;
     srand(myID);
 
     // produce items
@@ -121,7 +122,7 @@ void* ProdFunction(void* threadID)
         pthread_mutex_unlock(&lock);
     } 
 
-
+    printf("DEBUG +++ Producer [%d] finished.\n",myID);
 
     pthread_exit(0);
 }

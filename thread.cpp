@@ -104,9 +104,16 @@ int main(int argc, char*argv[]){
 
 void* ProdFunction(void* threadID)
 {
+    // init
+    pthread_cond_init(&full, NULL);
+    pthread_cond_init(&empty, NULL);
+    
+    // init RNG seed
     int* myIDptr = (int*)threadID;
     int myID = *myIDptr;
     srand(myID);
+
+
 
     // produce items
     pthread_mutex_lock(&lock);
@@ -130,8 +137,14 @@ void* ProdFunction(void* threadID)
 
 void* ConsFunction(void *param)
 {
+    // init
+    pthread_cond_init(&full, NULL);
+    pthread_cond_init(&empty, NULL);
+
+    // init RNG seed
     int* myIDptr = (int*)param;
     int myID = *myIDptr;
+    
     // define and init local variables to first num in buffer
     int myMin, myMax, mySum;
 

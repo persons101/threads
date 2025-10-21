@@ -111,11 +111,12 @@ void* ProdFunction(void* threadID)
     // produce items
     pthread_mutex_lock(&lock);
     for (int i=0; i < NumItems; i++){
-        while (((NextIn + 1) % S) == NextOut) { // buffer full
-            pthread_cond_signal(&full);
-            pthread_cond_wait(&empty, &lock);
-        }
-
+        // while () { // buffer full
+        //     pthread_cond_signal(&full);
+        //     pthread_cond_wait(&empty, &lock);
+        // }
+        pthread_cond_wait(&empty, &lock);
+        
         pthread_mutex_lock(&lock);
         buf[NextIn] = rand() % range;
         NextIn = (NextIn + 1) % 10;

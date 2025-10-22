@@ -1,6 +1,6 @@
 all: synct.cpp
-	nmake build
-	nmake execute
+	make build
+	make execute
 
 build: synct.cpp
 	g++ synct.cpp -o synct -pthread

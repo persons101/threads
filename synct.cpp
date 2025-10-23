@@ -18,6 +18,7 @@ double totAvg;
 int NumItems;                       // number of items for each producer to produce
 int range = 1000;                   // range for random numbers
 int bufCount = 0;                   // number of items currently in the buffer
+int debugAllItemsProduced = 0;
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // mutex lock
 pthread_cond_t empty, full;         // conditional variables
@@ -131,7 +132,7 @@ void* ProdFunction(void* threadID)
         
             buf[NextIn] = rand() % range;
             NextIn = (NextIn + 1) % 10;
-            bufCount++; debugItemsProduced++;
+            bufCount++; debugItemsProduced++; debugAllItemsProduced++;
             pthread_cond_signal(&full);
         //End Critical Section
         pthread_mutex_unlock(&lock);

@@ -20,7 +20,7 @@ int range = 1000;                   // range for random numbers
 int bufCount = 0;                   // number of items currently in the buffer
 int debugAllItemsProduced = 0;
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // mutex lock
+pthread_mutex_t lock;// = PTHREAD_MUTEX_INITIALIZER; // mutex lock
 pthread_cond_t empty, full;         // conditional variables
 
 
@@ -103,7 +103,7 @@ int main(int argc, char*argv[]){
     }
 
     for (int i = 0; i < NUM_C_THREADS; i++){
-        printf("RESULTS[%d]: Min=%d, Max=%d, Avg=%f\n", i, min[i], max[i], avg[i]);
+        printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min[i], max[i], avg[i]);
     }
     printf("RESULTS[*]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
     
@@ -138,7 +138,7 @@ void* ProdFunction(void* tid)
         pthread_mutex_unlock(&lock);
     } 
 
-    printf("DEBUG +++ Producer [%d] finished.\n",myID);
+    //printf("DEBUG +++ Producer [%d] finished.\n",myID);
 
     pthread_exit(0);
 }
@@ -152,7 +152,7 @@ void* ConsFunction(void *tid)
     int myID = *myIDptr;
     
     // define and init local variables to first num in buffer
-    int myMin, myMax, mySum, consumedNum;    
+    int localMin, localMax, mySum, consumedNum;    
 
     // loop through buffer
     for (int i = 0; i < NumItems; i++){
@@ -171,23 +171,23 @@ void* ConsFunction(void *tid)
         pthread_mutex_unlock(&lock);
         
 
-        if (consumedNum < myMin)
-            myMin = consumedNum;
-        if (consumedNum > myMax)
-            myMax = consumedNum;
+        if (consumedNum < localMin)
+            localMin = consumedNum;
+        if (consumedNum > localMax)
+            localMax = consumedNum;
         
         mySum += consumedNum;
     }
 
-    double myAvg = static_cast<double>(mySum) / NumItems; 
+    double localAvg = static_cast<double>(mySum) / NumItems; 
 
     // push local vars to global
-    avg[myID] = myAvg;
-    min[myID] = myMin;
-    max[myID] = myMax;
+    avg[myID] = localAvg;
+    min[myID] = localMin;
+    max[myID] = localMax;
 
     // print results
-    printf("RESULTS{%d}: Min=%d, Max=%d, Avg=%f\n", myID, myMin, myMax, myAvg);
+    printf("RESULTS[c%d]: Min=%d, Max=%d, Avg=%f\n", myID, localMin, localMax, localAvg);
 
     pthread_exit(0);
 }

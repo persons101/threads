@@ -1,8 +1,8 @@
 #include <iostream>
 #include <pthread.h>
 
-void* ProdFunction(void* threadID);
-void* ConsFunction(void *threadID);
+void* ProdFunction(void* tid);
+void* ConsFunction(void *tid);
 
 // GLOBALS
 #define S 10
@@ -110,12 +110,12 @@ int main(int argc, char*argv[]){
     return 0;
 }
 
-void* ProdFunction(void* threadID)
+void* ProdFunction(void* tid)
 {
     // init
     int debugItemsProduced = 0;
     // init RNG seed
-    int* myIDptr = (int*)threadID;
+    int* myIDptr = (int*)tid;
     int myID = *myIDptr;
     srand(myID);
 
@@ -143,12 +143,12 @@ void* ProdFunction(void* threadID)
     pthread_exit(0);
 }
 
-void* ConsFunction(void *param)
+void* ConsFunction(void *tid)
 {
     // init
 
     // init RNG seed
-    int* myIDptr = (int*)param;
+    int* myIDptr = (int*)tid;
     int myID = *myIDptr;
     
     // define and init local variables to first num in buffer

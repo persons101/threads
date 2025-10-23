@@ -17,12 +17,19 @@ int totMax, totMin;
 double totAvg;
 int NumItems;                       // number of items for each producer to produce
 int range = 1000;                   // range for random numbers
-pthread_mutex_t lock;               // mutex lock
-pthread_cond_t empty, full;
+int bufCount = 0;                   // number of items currently in the buffer
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // mutex lock
+pthread_cond_t empty, full;         // conditional variables
+
+
 //END GLOBALS
 
 int main(int argc, char*argv[]){
-    
+    // initializing
+    pthread_cond_init(&empty, NULL);
+    pthread_cond_init(&full, NULL);
+    // declare pthread ID arrays (IDs)
     pthread_t tidC[NUM_C_THREADS]; // array with consumer thread IDs
     pthread_t tidP[NUM_P_THREADS]; // array with producer thread IDs
     
@@ -105,8 +112,6 @@ int main(int argc, char*argv[]){
 void* ProdFunction(void* threadID)
 {
     // init
-    pthread_cond_init(&full, NULL);
-    pthread_cond_init(&empty, NULL);
     
     // init RNG seed
     int* myIDptr = (int*)threadID;
@@ -118,16 +123,16 @@ void* ProdFunction(void* threadID)
     // produce items
     pthread_mutex_lock(&lock);
     for (int i=0; i < NumItems; i++){
-        // while () { // buffer full
-        //     pthread_cond_signal(&full);
-        //     pthread_cond_wait(&empty, &lock);
-        // }
-        pthread_cond_wait(&empty, &lock);
+        while (bufCount >= S) { // buffer full
+            pthread_cond_wait(&empty, &lock);
+        }
         
         pthread_mutex_lock(&lock);
-        buf[NextIn] = rand() % range;
-        NextIn = (NextIn + 1) % 10;
-
+        //Critical Section
+            buf[NextIn] = rand() % range;
+            NextIn = (NextIn + 1) % 10;
+            pthread_cond_signal(&full);
+        //End Critical Section
         pthread_mutex_unlock(&lock);
     } 
 
@@ -139,38 +144,29 @@ void* ProdFunction(void* threadID)
 void* ConsFunction(void *param)
 {
     // init
-    pthread_cond_init(&full, NULL);
-    pthread_cond_init(&empty, NULL);
 
     // init RNG seed
     int* myIDptr = (int*)param;
     int myID = *myIDptr;
     
     // define and init local variables to first num in buffer
-    int myMin, myMax, mySum;
-
-
-    pthread_mutex_lock(&lock);
-    while (NextIn == NextOut) { // buffer empty
-        pthread_cond_signal(&empty);
-        pthread_cond_wait(&full, &lock);
-    }
-    myMin = buf[0];
-    myMax = buf[0];
-    mySum = buf[0];
+    int myMin, myMax, mySum, consumedNum;    
 
     // loop through buffer
-    for (int i = 1; i < NumItems; i++){
-        while (NextIn == NextOut) { // buffer empty
-            pthread_cond_signal(&empty);
+    for (int i = 0; i < NumItems; i++){
+        while (bufCount <= 0) { // buffer empty
             pthread_cond_wait(&full, &lock);
         }
-        NextOut = (NextOut + 1) % 10;
-
+        
+        pthread_mutex_lock(&lock);
+        // Critical Section
+            // local variable 
+            consumedNum = buf[i];
+            NextOut = (NextOut + 1) % 10;
+            pthread_cond_signal(&empty);
+        // End Critical Section
         pthread_mutex_unlock(&lock);
-
-        // local variable 
-        int consumedNum = buf[i];
+        
 
         if (consumedNum < myMin)
             myMin = consumedNum;

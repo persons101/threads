@@ -6,7 +6,7 @@ void* ConsFunction(void *threadID);
 
 // GLOBALS
 #define S 10
-int buf[S];
+int buf[S] = {-1};
 #define NUM_C_THREADS 6             // consumer thread count
 #define NUM_P_THREADS 6             // producer thread count
 int min[NUM_C_THREADS];             // global min array
@@ -52,7 +52,7 @@ int main(int argc, char*argv[]){
     for (int t = 0; t < NUM_P_THREADS; t++){
         int* t_ptr = &t;
         
-        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, (void*)t_ptr);
+        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, t);
         if (returnVal){
             printf("ERROR: return code from pthread_create() is %d\n", returnVal);
             exit(-1);
@@ -64,7 +64,7 @@ int main(int argc, char*argv[]){
     for (int t = 0; t < NUM_C_THREADS; t++){
         int* t_ptr = &t;
         
-        int returnVal = pthread_create(&tidC[t], NULL, ConsFunction, t_ptr);
+        int returnVal = pthread_create(&tidC[t], NULL, ConsFunction, t);
         if (returnVal){
             printf("ERROR: return code from pthread_create() is %d\n", returnVal);
             exit(-1);
@@ -112,7 +112,7 @@ int main(int argc, char*argv[]){
 void* ProdFunction(void* threadID)
 {
     // init
-    
+    int debugItemsProduced = 0;
     // init RNG seed
     int* myIDptr = (int*)threadID;
     int myID = *myIDptr;
@@ -121,16 +121,17 @@ void* ProdFunction(void* threadID)
 
 
     // produce items
-    pthread_mutex_lock(&lock);
+    // pthread_mutex_lock(&lock);
     for (int i=0; i < NumItems; i++){
-        while (bufCount >= S) { // buffer full
-            pthread_cond_wait(&empty, &lock);
-        }
-        
         pthread_mutex_lock(&lock);
         //Critical Section
+            while (bufCount >= S) { // buffer full
+                pthread_cond_wait(&empty, &lock);
+            }
+        
             buf[NextIn] = rand() % range;
             NextIn = (NextIn + 1) % 10;
+            bufCount++; debugItemsProduced++;
             pthread_cond_signal(&full);
         //End Critical Section
         pthread_mutex_unlock(&lock);
@@ -154,15 +155,16 @@ void* ConsFunction(void *param)
 
     // loop through buffer
     for (int i = 0; i < NumItems; i++){
+        pthread_mutex_lock(&lock);
+        // Critical Section
         while (bufCount <= 0) { // buffer empty
             pthread_cond_wait(&full, &lock);
         }
         
-        pthread_mutex_lock(&lock);
-        // Critical Section
             // local variable 
             consumedNum = buf[i];
             NextOut = (NextOut + 1) % 10;
+            bufCount--;
             pthread_cond_signal(&empty);
         // End Critical Section
         pthread_mutex_unlock(&lock);

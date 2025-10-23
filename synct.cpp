@@ -139,6 +139,8 @@ void* ProdFunction(void* tid)
     //printf("DEBUG +++ Producer [%d] finished.\n",myID);
 
     pthread_exit(0);
+
+    return nullptr; // THIS NEVER EXECUTES, I GOT SICK OF THE COMPILER COMPLAINING ABOUT NO RETURN STATEMENT
 }
 
 void* ConsFunction(void *tid)
@@ -150,7 +152,7 @@ void* ConsFunction(void *tid)
     int myID = *myIDptr;
     
     // define and init local variables to first num in buffer
-    int localMin, localMax, mySum, consumedNum;    
+    int localMin, localMax, localSum, consumedNum;    
 
     // loop through buffer
     for (int i = 0; i < NumItems; i++){
@@ -161,7 +163,7 @@ void* ConsFunction(void *tid)
         }
         
             // local variable 
-            consumedNum = buf[i];
+            consumedNum = buf[NextOut];
             NextOut = (NextOut + 1) % 10;
             bufCount--;
             pthread_cond_signal(&empty);
@@ -174,10 +176,10 @@ void* ConsFunction(void *tid)
         if (consumedNum > localMax)
             localMax = consumedNum;
         
-        mySum += consumedNum;
+        localSum += consumedNum;
     }
 
-    double localAvg = static_cast<double>(mySum) / NumItems; 
+    double localAvg = static_cast<double>(localSum) / NumItems; 
 
     // push local vars to global
     avg[myID] = localAvg;
@@ -187,5 +189,7 @@ void* ConsFunction(void *tid)
     // print results
     printf("RESULTS[c%d]: Min=%d, Max=%d, Avg=%f\n", myID, localMin, localMax, localAvg);
 
-    pthread_exit(0);
+    pthread_exit(0); 
+
+    return nullptr; // THIS NEVER EXECUTES, I GOT SICK OF THE COMPILER COMPLAINING ABOUT NO RETURN STATEMENT
 }

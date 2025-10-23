@@ -119,8 +119,6 @@ void* ProdFunction(void* tid)
     int myID = *myIDptr;
     srand(myID);
 
-
-
     // produce items
     // pthread_mutex_lock(&lock);
     for (int i=0; i < NumItems; i++){

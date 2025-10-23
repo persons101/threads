@@ -102,10 +102,11 @@ int main(int argc, char*argv[]){
             totMax = max[i];
     }
 
+    printf("=-=-=-=-=-=-=-=-=\n");
     for (int i = 0; i < NUM_C_THREADS; i++){
         printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min[i], max[i], avg[i]);
     }
-    printf("RESULTS[m *]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
+    printf("RESULTS[m*]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
     
     return 0;
 }

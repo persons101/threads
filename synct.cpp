@@ -20,7 +20,7 @@ int range = 1000;                   // range for random numbers
 int bufCount = 0;                   // number of items currently in the buffer
 int debugAllItemsProduced = 0;
 
-pthread_mutex_t lock;// = PTHREAD_MUTEX_INITIALIZER; // mutex lock
+pthread_mutex_t lock;                // mutex lock
 pthread_cond_t empty, full;         // conditional variables
 
 
@@ -102,7 +102,7 @@ int main(int argc, char*argv[]){
             totMax = max[i];
     }
 
-    printf("=-=-=-=-=-=-=-=-=\n");
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
     for (int i = 0; i < NUM_C_THREADS; i++){
         printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min[i], max[i], avg[i]);
     }

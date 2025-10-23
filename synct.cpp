@@ -6,7 +6,7 @@ void* ConsFunction(void *tid);
 
 // GLOBALS
 #define S 10
-int buf[S] = {-1};
+int buf[S];
 #define NUM_C_THREADS 6             // consumer thread count
 #define NUM_P_THREADS 6             // producer thread count
 int min[NUM_C_THREADS];             // global min array
@@ -88,9 +88,9 @@ int main(int argc, char*argv[]){
     // avg
     totAvg = 0.0;
     for (int i = 0; i < NUM_C_THREADS; i++){
-        totAvg += avg[i] * 1000; // get sum from avg
+        totAvg += (avg[i] * NumItems); // get sum from avg
     }
-    totAvg /= NUM_C_THREADS; 
+    totAvg /= (NUM_C_THREADS * NumItems); 
     // min/max
     totMin = min[0];
     totMax = max[0];
@@ -105,7 +105,7 @@ int main(int argc, char*argv[]){
     for (int i = 0; i < NUM_C_THREADS; i++){
         printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min[i], max[i], avg[i]);
     }
-    printf("RESULTS[*]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
+    printf("RESULTS[m *]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
     
     return 0;
 }
@@ -170,7 +170,12 @@ void* ConsFunction(void *tid)
         // End Critical Section
         pthread_mutex_unlock(&lock);
         
+        if (i == 0){ // initialize min and max with first item consumed
+            localMin = consumedNum;
+            localMax = consumedNum;
+        }
 
+        // update localMin, localMax, localAvg
         if (consumedNum < localMin)
             localMin = consumedNum;
         if (consumedNum > localMax)

@@ -27,7 +27,7 @@ pthread_cond_t empty, full;         // conditional variables
 //END GLOBALS
 
 int main(int argc, char*argv[]){
-    // initializing
+    // initialize conditions
     pthread_cond_init(&empty, NULL);
     pthread_cond_init(&full, NULL);
     // declare pthread ID arrays (IDs)

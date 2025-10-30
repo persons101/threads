@@ -123,7 +123,7 @@ int main(int argc, char*argv[]){
 void *ProdFunction(void *tid)
 {
     // init RNG seed
-    int myID = (int)tid;
+    int myID = *(int*)tid;
     srand(myID);
 
     // produce items
@@ -152,7 +152,7 @@ void *ProdFunction(void *tid)
 void *ConsFunction(void *tid)
 {
     // init myID
-    int myID = (int)tid;
+    int myID = *(int*)tid;
     
     // define local variables
     int localMin, localMax, localSum, consumedNum;    

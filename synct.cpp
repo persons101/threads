@@ -60,7 +60,7 @@ int main(int argc, char*argv[]){
 
     // create producer threads
     for (int t = 0; t < NUM_P_THREADS; t++){
-        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, (void*)t);
+        int returnVal = pthread_create(&tidP[t], NULL, ProdFunction, (void*)(size_t)t);
         if (returnVal){
             printf("ERROR: return code from pthread_create() is %d\n", returnVal);
             exit(-1);
@@ -69,7 +69,7 @@ int main(int argc, char*argv[]){
 
     // create consumer threads
     for (int t = 0; t < NUM_C_THREADS; t++){
-        int returnVal = pthread_create(&tidC[t], NULL, ConsFunction, (void*)t);
+        int returnVal = pthread_create(&tidC[t], NULL, ConsFunction, (void*)(size_t)t);
         if (returnVal){
             printf("ERROR: return code from pthread_create() is %d\n", returnVal);
             exit(-1);

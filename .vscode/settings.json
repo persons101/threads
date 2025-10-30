@@ -1,0 +1,11 @@
+{
+    "makefile.makePath": "C:\\msys64\\ucrt64\\bin\\mingw32-make.exe",
+    "makefile.makefilePath": "",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "c:\\Users\\willi\\OneDrive - Bowling Green State University\\CS3080H - Operating Systems\\threads",
+            "binaryPath": "c:\\Users\\willi\\OneDrive - Bowling Green State University\\CS3080H - Operating Systems\\threads\\synct",
+            "binaryArgs": []
+        }
+    ]
+}

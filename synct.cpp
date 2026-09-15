@@ -85,7 +85,7 @@ int main(int argc, char*argv[]){
     for (int t = 0; t < NUM_P_THREADS; t++){
         pthread_join(tidP[t], NULL);
     }
-    
+        
     // calculate global/total min,max,avg
     // avg
     totAvg = 0.0;
@@ -110,9 +110,9 @@ int main(int argc, char*argv[]){
     // NOT A PART OF THE LAB SPEC
     // Prints all consumers from main, confirms that numbers are the same
     //  
-    // for (int i = 0; i < NUM_C_THREADS; i++){
-    //     printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min_array[i], max_array[i], avg_array[i]);
-    // }
+    for (int i = 0; i < NUM_C_THREADS; i++){
+        printf("RESULTS[m%d]: Min=%d, Max=%d, Avg=%f\n", i, min_array[i], max_array[i], avg_array[i]);
+    }
     // 
 
     printf("RESULTS[m*]: Min=%d, Max=%d, Avg=%f\n", totMin, totMax, totAvg);
@@ -123,7 +123,7 @@ int main(int argc, char*argv[]){
 void *ProdFunction(void *tid)
 {
     // init RNG seed
-    int myID = *(int*)tid;
+    int myID = (int)(size_t)tid;
     srand(myID);
 
     // produce items
@@ -152,7 +152,7 @@ void *ProdFunction(void *tid)
 void *ConsFunction(void *tid)
 {
     // init myID
-    int myID = *(int*)tid;
+    int myID = (int)(size_t)tid;
     
     // define local variables
     int localMin, localMax, localSum, consumedNum;    
